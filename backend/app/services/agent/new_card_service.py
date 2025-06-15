@@ -35,7 +35,7 @@ def _get_system_prompt() -> str:
     For EACH card in the list, you MUST:
     1.  Assign a unique `card_id` string (e.g., "task-1", "task-2"). This ID is temporary and local to this response.
     2.  Fill out the card details (`title`, `description`, etc.).
-    3.  Determine the `task_type`. Use `research_task` for investigation and `phone_task` for calling experts or team members to inform them of results.
+    3.  Determine the `task_type`. Use `research_task` for investigation, `phone_task` for calling experts or team members to inform them of results and `image_generation_task` in case you think an image of the results could be interesting or the user asked for it.`
     4.  Crucially, for any card that depends on another, add the prerequisite card's `card_id` to its `dependencies` list. The first task(s) should have an empty `dependencies` list.
     
     Only create one research task maximum.
@@ -60,6 +60,15 @@ def _get_system_prompt() -> str:
           "status": "todo",
           "parameters": null,
           "dependencies": ["task-1"]
+        },
+        {
+          "card_id": "task-2",
+          "title": "Create Marketing Poster",
+          "description": "Generate a poster for the new marketing campaign based on the research. The image should contain a sleek, futuristic marketing poster for electric vehicles in Germany. Show a modern EV on a road with wind turbines in the background. Use a blue and green color palette. Text: 'The Future is Electric'.",
+          "task_type": "image_generation_task",
+          "status": "todo",
+          "parameters": null,
+          "dependencies": ["task-1"],
         }
       ]
     }

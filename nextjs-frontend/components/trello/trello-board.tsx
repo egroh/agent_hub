@@ -20,7 +20,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Column, TaskCard, TaskExecution } from '@/lib/types';
-import { createNewCardFromPrompt, NewCardAgentResponse } from '@/app/clientService';
+import {createNewCardFromPrompt, generateImageEndpoint, NewCardAgentResponse} from '@/app/clientService';
 import { taskExecutionService } from '@/lib/task-execution-service';
 import { performDeepSearch, triggerOutboundCall, triggerAgent } from '@/app/clientService';
 
@@ -497,7 +497,31 @@ export function TrelloBoard() {
            apiResponse = response.data;
            console.log(`✅ Outbound call completed for "${subTask.title}":`, apiResponse);
            
-         } else {
+         } else if (taskType === 'image_generation_task') {
+          executionType = 'image_generation';
+
+          // Start execution tracking and move card to "Doing"
+          startTaskExecution(subTaskId, executionType);
+
+          // The prompt is the card's description
+          const imagePrompt = subTask.description || subTask.title;
+          console.log(`🎨 Generating image for: "${imagePrompt}"`);
+
+          // Call the image generation endpoint
+          const response = await generateImageEndpoint({
+            body: { prompt: imagePrompt },
+          });
+
+          if (!response.data) {
+            throw new Error("No data received from image generation service");
+          }
+
+          apiResponse = response.data;
+          console.log(`✅ Image generated for "${subTask.title}"`);
+
+        // --- END OF NEW BLOCK ---
+
+        } else {
            // Unknown task type, treat as general AI processing
            executionType = 'ai_processing';
            
@@ -530,9 +554,11 @@ export function TrelloBoard() {
           if (doneColumnIndex !== -1) {
             const taskIndex = newColumns[doneColumnIndex].cards.findIndex(card => card.id === subTaskId);
             if (taskIndex !== -1) {
+              const currentCard = newColumns[doneColumnIndex].cards[taskIndex];
               newColumns[doneColumnIndex].cards[taskIndex] = {
                 ...newColumns[doneColumnIndex].cards[taskIndex],
                 aiResponse: apiResponse.response || apiResponse.message || 'Task completed successfully',
+                coverImage: executionType === 'image_generation' ? apiResponse.image_base64 : currentCard.coverImage,
                 aiMetadata: {
                   ...newColumns[doneColumnIndex].cards[taskIndex].aiMetadata,
                   executionTime: apiResponse.execution_time,

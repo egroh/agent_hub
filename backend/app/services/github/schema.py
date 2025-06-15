@@ -42,7 +42,7 @@ class TaskType(str, Enum):
 
     PHONE = "phone_task"
     RESEARCH = "research_task"
-
+    IMAGE_GENERATION = "image_generation_task"
 
 class NewCardData(BaseModel):
     """

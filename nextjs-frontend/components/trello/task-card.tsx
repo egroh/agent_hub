@@ -5,7 +5,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { TaskCard as TaskCardType } from '@/lib/types';
-import { Calendar, MessageCircle, Paperclip, Loader2, Sparkles, Link, Bot, Clock, Phone, Search } from 'lucide-react';
+import {
+  Calendar,
+  MessageCircle,
+  Paperclip,
+  Loader2,
+  Sparkles,
+  Link,
+  Bot,
+  Clock,
+  Phone,
+  Search,
+  ImageIcon
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TaskCardProps {
@@ -36,6 +48,12 @@ export function TaskCard({ card, className }: TaskCardProps) {
           label: 'Research',
           className: 'bg-indigo-100 text-indigo-700 border-indigo-200'
         };
+      case 'image_generation_task':
+      return {
+        icon: ImageIcon,
+        label: 'Image Gen',
+        className: 'bg-pink-100 text-pink-700 border-pink-200'
+      };
       default:
         return null;
     }
@@ -188,6 +206,12 @@ export function TaskCard({ card, className }: TaskCardProps) {
                   <span className="text-xs font-medium text-purple-700">AI processing...</span>
                 </>
               )}
+              {card.execution.executionType === 'image_generation' && (
+                <>
+                  <ImageIcon className="w-3 h-3 text-pink-600 animate-pulse" />
+                  <span className="text-xs font-medium text-pink-700">Generating image...</span>
+                </>
+              )}
             </div>
             <div className="flex space-x-1">
               {card.execution.executionType === 'web_search' && (
@@ -209,6 +233,13 @@ export function TaskCard({ card, className }: TaskCardProps) {
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </>
+              )}
+              {card.execution.executionType === 'image_generation' && (
+                <>
+                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </>
               )}
             </div>
