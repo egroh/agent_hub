@@ -56,7 +56,7 @@ class NewCardData(BaseModel):
     title: str
     description: str
     task_type: TaskType
-    status: Literal["todo"] = "todo"
+    status: Literal["todo", "doing", "done"] = "todo"
     dependencies: list[str] = Field(
         default_factory=list,
         description="List of card_ids this card depends on.",

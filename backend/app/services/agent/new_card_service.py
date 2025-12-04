@@ -1,4 +1,5 @@
 import asyncio
+import os
 import json
 import logging
 import time
@@ -105,6 +106,72 @@ async def create_new_card_from_prompt(
     
     for attempt in range(max_retries):
         try:
+            # Check for DEMO_MODE
+            if os.getenv("DEMO_MODE", "false").lower() == "true":
+                logger.info("DEMO_MODE is enabled. Returning mock response.")
+                # Simulate a short delay
+                await asyncio.sleep(1.5)
+                
+                # Mock response based on the prompt
+                mock_cards = {
+                    "cards": [
+                        {
+                            "card_id": "task-1",
+                            "title": "Research Competitors",
+                            "description": "Analyze key competitors in the market.",
+                            "task_type": "research_task",
+                            "status": "todo",
+                            "parameters": {"topics": ["pricing", "features"], "scope": "Global"},
+                            "dependencies": []
+                        },
+                        {
+                            "card_id": "task-2",
+                            "title": "Draft Strategy Report",
+                            "description": "Compile research findings into a strategy report.",
+                            "task_type": "research_task",
+                            "status": "todo",
+                            "parameters": None,
+                            "dependencies": ["task-1"]
+                        },
+                        {
+                            "card_id": "task-3",
+                            "title": "Generate Cover Image",
+                            "description": "Create a cover image for the strategy report.",
+                            "task_type": "image_generation_task",
+                            "status": "todo",
+                            "parameters": None,
+                            "dependencies": ["task-2"]
+                        }
+                    ]
+                }
+                
+                # Return the mock response as if it came from the LLM
+                response_text = json.dumps(mock_cards)
+                cleaned_json_text = response_text
+                response_json = mock_cards
+                
+                # Validate each card and then validate the dependency graph
+                # Validate each card and then validate the dependency graph
+                card_list_json = mock_cards["cards"]
+                validated_cards = [NewCardData(**card) for card in card_list_json]
+                _validate_dependencies(validated_cards)
+                
+                execution_time = time.time() - start_time
+                metadata = {
+                    "model_used": "demo-mock",
+                    "input_tokens": 0,
+                    "output_tokens": 0,
+                    "card_count": len(validated_cards),
+                    "attempts_made": 1,
+                }
+
+                return NewCardAgentResponse(
+                    card_data=validated_cards,
+                    agent_id=AGENT_ID,
+                    execution_time=execution_time,
+                    metadata=metadata,
+                )
+
             message = await claude_client.messages.create(
                 model="claude-sonnet-4-20250514",
                 max_tokens=5000,  # Increased for more complex structures

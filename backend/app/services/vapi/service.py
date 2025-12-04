@@ -19,10 +19,16 @@ class VapiService:
         
         # Configuration Vapi
         api_key = os.getenv("VAPI_API_KEY")
-        if not api_key:
+        self.demo_mode = os.getenv("DEMO_MODE", "false").lower() == "true"
+
+        if not api_key and not self.demo_mode:
             raise ValueError("VAPI_API_KEY environment variable is required")
             
-        self.client = Vapi(token=api_key)
+        if not self.demo_mode:
+            self.client = Vapi(token=api_key)
+        else:
+            self.client = None
+            
         self.logger = logger
         
         # Configuration des IDs (tes vraies valeurs)
@@ -54,25 +60,31 @@ Here is the Market Overview you must summarise:
         self.logger.info(f"Starting outbound call to {request.target_number}")
         
         try:
-            # Lancement de l'appel avec les variables dynamiques
-            call = self.client.calls.create(
-                assistant_id=self.assistant_id,
-                phone_number_id=self.phone_number_id,
-                customer={
-                    "number": request.target_number,
-                },
-                assistant_overrides={
-                    "variable_values": {
-                        "market_overview": request.market_overview,
-                        "name": request.name,
-                        "action_to_take": request.action_to_take
-                    }
-                },
-            )
+            if self.demo_mode:
+                self.logger.info(f"DEMO_MODE: Simulating outbound call to {request.target_number}")
+                await asyncio.sleep(1.5)
+                call_id = f"demo-call-{int(time.time())}"
+            else:
+                # Lancement de l'appel avec les variables dynamiques
+                call = self.client.calls.create(
+                    assistant_id=self.assistant_id,
+                    phone_number_id=self.phone_number_id,
+                    customer={
+                        "number": request.target_number,
+                    },
+                    assistant_overrides={
+                        "variable_values": {
+                            "market_overview": request.market_overview,
+                            "name": request.name,
+                            "action_to_take": request.action_to_take
+                        }
+                    },
+                )
+                call_id = call.id
             
             execution_time = time.time() - start_time
             
-            self.logger.info(f"Outbound call initiated successfully: {call.id}")
+            self.logger.info(f"Outbound call initiated successfully: {call_id}")
             
             # Métadonnées pour le suivi
             metadata = {
@@ -86,7 +98,7 @@ Here is the Market Overview you must summarise:
             
             return OutboundCallResponse(
                 success=True,
-                call_id=call.id,
+                call_id=call_id,
                 message="Appel sortant déclenché avec succès",
                 assistant_id=self.assistant_id,
                 execution_time=execution_time,
@@ -117,17 +129,23 @@ Here is the Market Overview you must summarise:
         self.logger.info(f"Starting simple outbound call to {target_number}")
         
         try:
-            call = self.client.calls.create(
-                assistant_id=self.assistant_id,
-                phone_number_id=self.phone_number_id,
-                customer={
-                    "number": target_number,
-                },
-            )
+            if self.demo_mode:
+                self.logger.info(f"DEMO_MODE: Simulating simple outbound call to {target_number}")
+                await asyncio.sleep(1.5)
+                call_id = f"demo-simple-call-{int(time.time())}"
+            else:
+                call = self.client.calls.create(
+                    assistant_id=self.assistant_id,
+                    phone_number_id=self.phone_number_id,
+                    customer={
+                        "number": target_number,
+                    },
+                )
+                call_id = call.id
             
             execution_time = time.time() - start_time
             
-            self.logger.info(f"Simple outbound call initiated successfully: {call.id}")
+            self.logger.info(f"Simple outbound call initiated successfully: {call_id}")
             
             metadata = {
                 "target_number": target_number,
@@ -138,7 +156,7 @@ Here is the Market Overview you must summarise:
             
             return OutboundCallResponse(
                 success=True,
-                call_id=call.id,
+                call_id=call_id,
                 message="Appel simple déclenché avec succès",
                 assistant_id=self.assistant_id,
                 execution_time=execution_time,

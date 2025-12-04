@@ -16,6 +16,11 @@ logger = logging.getLogger(__name__)
 def _create_agent() -> CodeAgent:
     """Initializes the expensive agent object."""
     logger.info("Initializing Deep Search Agent...")
+    # Skip initialization if in demo mode
+    if os.getenv("DEMO_MODE", "false").lower() == "true":
+        logger.info("DEMO_MODE enabled: Skipping Deep Search Agent initialization.")
+        return None # type: ignore
+
     if "ANTHROPIC_API_KEY" not in os.environ:
         raise RuntimeError("ANTHROPIC_API_KEY environment variable not set.")
 
@@ -40,8 +45,23 @@ async def run_deep_search(agent_request: AgentRequest) -> AgentResponse:
     logger.info(f"Agent running search for: '{prompt[:70]}...'")
 
     try:
-        # Run the synchronous agent.run in a separate thread
-        final_answer = await asyncio.to_thread(deep_search_agent.run, prompt)
+        # Check for DEMO_MODE
+        if os.getenv("DEMO_MODE", "false").lower() == "true":
+            logger.info("DEMO_MODE is enabled. Returning mock deep search response.")
+            await asyncio.sleep(2.0) # Simulate search time
+            final_answer = (
+                f"**[DEMO MODE] Deep Search Result for: {agent_request.prompt}**\n\n"
+                "Based on the analysis of the request, here are the key findings:\n\n"
+                "1. **Market Trends**: The AI agent market is rapidly evolving with a focus on autonomous task execution.\n"
+                "2. **Competitor Analysis**: Key players are integrating multi-modal capabilities (text, image, voice).\n"
+                "3. **Strategic Recommendations**: Focus on user experience and seamless integration with existing workflows.\n\n"
+                "This is a simulated response for demonstration purposes."
+            )
+        else:
+            # Run the synchronous agent.run in a separate thread
+            if deep_search_agent is None:
+                 raise RuntimeError("Deep Search Agent not initialized (check API keys).")
+            final_answer = await asyncio.to_thread(deep_search_agent.run, prompt)
     except Exception as e:
         raise RuntimeError(f"Agent execution failed: {e}")
 

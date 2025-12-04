@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 MODEL_ID = "stabilityai/stable-diffusion-xl-base-1.0"
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-if not HF_TOKEN:
+if not HF_TOKEN and os.getenv("DEMO_MODE", "false").lower() != "true":
     raise RuntimeError(
         "HF_TOKEN environment variable not set. Please add it to your .env file."
     )
@@ -40,6 +40,18 @@ async def generate_image_for_task(
     Generates an image using the Hugging Face Inference API and returns it
     as a Base64 string.
     """
+    # Check for DEMO_MODE
+    if os.getenv("DEMO_MODE", "false").lower() == "true":
+        logger.info("DEMO_MODE is enabled. Returning mock image.")
+        # Simulate a short delay
+        await asyncio.sleep(1.0)
+        
+        # Return a simple 1x1 pixel transparent PNG or similar as base64
+        # This is a 1x1 red pixel
+        mock_image_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+        
+        return ImageGenerationResponse(image_base64=mock_image_base64, model_id="demo-mock-model")
+
     logger.info(f"Generating image for prompt: '{request.prompt[:70]}...'")
     start_time = time.time()
 

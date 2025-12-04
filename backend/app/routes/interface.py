@@ -103,6 +103,68 @@ async def perform_deep_search(
             status_code=500, detail="An internal server error occurred."
         )
 
+@router.get("/board-init", response_model=NewCardAgentResponse)
+async def get_board_init():
+    """
+    Returns initial board state. Used for Demo Mode to populate the board.
+    """
+    import os
+    import time
+    from app.services.github.schema import NewCardData
+
+    if os.getenv("DEMO_MODE", "false").lower() == "true":
+        logger.info("DEMO_MODE is enabled. Returning initial demo board state.")
+        
+        mock_cards = [
+            NewCardData(
+                card_id="demo-1",
+                title="Analyze Competitor Pricing",
+                description="Research current pricing models of top 3 competitors in the AI agent space.",
+                task_type="research_task",
+                status="done",
+                dependencies=[]
+            ),
+            NewCardData(
+                card_id="demo-2",
+                title="Draft Pricing Strategy",
+                description="Create a pricing strategy document based on competitor analysis.",
+                task_type="research_task",
+                status="doing",
+                dependencies=["demo-1"]
+            ),
+            NewCardData(
+                card_id="demo-3",
+                title="Design Product Banner",
+                description="Create a futuristic banner for the new pricing page. Style: Cyberpunk, Neon, Professional.",
+                task_type="image_generation_task",
+                status="todo",
+                dependencies=["demo-2"]
+            ),
+             NewCardData(
+                card_id="demo-4",
+                title="Call Sales Lead",
+                description="Discuss the new pricing strategy with the sales lead.",
+                task_type="phone_task",
+                status="todo",
+                dependencies=["demo-2"]
+            )
+        ]
+
+        return NewCardAgentResponse(
+            card_data=mock_cards,
+            agent_id="demo-initializer",
+            execution_time=0.1,
+            metadata={"mode": "demo"}
+        )
+    
+    # Return empty if not in demo mode
+    return NewCardAgentResponse(
+        card_data=[],
+        agent_id="system",
+        execution_time=0.0,
+        metadata={}
+    )
+
 @router.post("/generate-image", response_model=ImageGenerationResponse)
 async def generate_image_endpoint(
     request: ImageGenerationRequest,
