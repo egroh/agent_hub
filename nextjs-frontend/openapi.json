@@ -172,6 +172,70 @@
           }
         }
       }
+    },
+    "/chat/board-init": {
+      "get": {
+        "tags": [
+          "chat"
+        ],
+        "summary": "Get Board Init",
+        "description": "Returns initial board state. Used for Demo Mode to populate the board.",
+        "operationId": "get_board_init",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewCardAgentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat/generate-image": {
+      "post": {
+        "tags": [
+          "chat"
+        ],
+        "summary": "Generate Image Endpoint",
+        "description": "Generates an image based on a descriptive prompt using a text-to-image model.",
+        "operationId": "generate_image_endpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImageGenerationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageGenerationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -248,6 +312,43 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "ImageGenerationRequest": {
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Prompt",
+            "description": "A descriptive prompt for the image to be generated."
+          }
+        },
+        "type": "object",
+        "required": [
+          "prompt"
+        ],
+        "title": "ImageGenerationRequest",
+        "description": "Request model for generating an image based on a text prompt."
+      },
+      "ImageGenerationResponse": {
+        "properties": {
+          "image_base64": {
+            "type": "string",
+            "title": "Image Base64",
+            "description": "The generated image, encoded as a Base64 string."
+          },
+          "model_id": {
+            "type": "string",
+            "title": "Model Id",
+            "description": "The model used for generation."
+          }
+        },
+        "type": "object",
+        "required": [
+          "image_base64",
+          "model_id"
+        ],
+        "title": "ImageGenerationResponse",
+        "description": "Response model containing the generated image as a Base64 string."
       },
       "NewCardAgentResponse": {
         "properties": {
@@ -422,7 +523,8 @@
         "type": "string",
         "enum": [
           "phone_task",
-          "research_task"
+          "research_task",
+          "image_generation_task"
         ],
         "title": "TaskType",
         "description": "The types of tasks our agent can create. Start with one, add more later."

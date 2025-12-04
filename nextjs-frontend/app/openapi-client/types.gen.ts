@@ -113,7 +113,7 @@ export type OutboundCallResponse = {
 /**
  * The types of tasks our agent can create. Start with one, add more later.
  */
-export type TaskType = "phone_task" | "research_task";
+export type TaskType = "phone_task" | "research_task" | "image_generation_task";
 
 export type ValidationError = {
   loc: Array<string | number>;
@@ -152,6 +152,10 @@ export type PerformDeepSearchData = {
 export type PerformDeepSearchResponse = AgentResponse;
 
 export type PerformDeepSearchError = HTTPValidationError;
+
+export type GetBoardInitResponse = NewCardAgentResponse;
+
+export type GetBoardInitError = unknown;
 
 export type GenerateImageEndpointData = {
   body: ImageGenerationRequest;

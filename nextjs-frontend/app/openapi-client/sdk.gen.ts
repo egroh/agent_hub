@@ -18,6 +18,11 @@ import type {
   PerformDeepSearchData,
   PerformDeepSearchError,
   PerformDeepSearchResponse,
+  GetBoardInitError,
+  GetBoardInitResponse,
+  GenerateImageEndpointData,
+  GenerateImageEndpointError,
+  GenerateImageEndpointResponse,
 } from "./types.gen";
 
 export const client = createClient(createConfig());
@@ -94,5 +99,39 @@ export const performDeepSearch = <ThrowOnError extends boolean = false>(
   >({
     ...options,
     url: "/chat/deep-search",
+  });
+};
+
+/**
+ * Get Board Init
+ * Returns initial board state. Used for Demo Mode to populate the board.
+ */
+export const getBoardInit = <ThrowOnError extends boolean = false>(
+  options?: OptionsLegacyParser<unknown, ThrowOnError>,
+) => {
+  return (options?.client ?? client).get<
+    GetBoardInitResponse,
+    GetBoardInitError,
+    ThrowOnError
+  >({
+    ...options,
+    url: "/chat/board-init",
+  });
+};
+
+/**
+ * Generate Image Endpoint
+ * Generates an image based on a descriptive prompt using a text-to-image model.
+ */
+export const generateImageEndpoint = <ThrowOnError extends boolean = false>(
+  options: OptionsLegacyParser<GenerateImageEndpointData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).post<
+    GenerateImageEndpointResponse,
+    GenerateImageEndpointError,
+    ThrowOnError
+  >({
+    ...options,
+    url: "/chat/generate-image",
   });
 };
