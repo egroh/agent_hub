@@ -49,7 +49,7 @@ class Repository(Base):
     forks = Column(Integer, default=0)
     size = Column(Integer, default=0)
     status = Column(Enum(RepoStatus), default=RepoStatus.NOT_INDEXED)
-    
+
     # Single JSON field containing all indexed data
     # Structure: {
     #   "documentation": [...],      # Code files with docstrings
@@ -58,7 +58,7 @@ class Repository(Base):
     #   "summary": {...}            # Optional summary metadata
     # }
     indexed_data = Column(JSON)
-    
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    indexed_at = Column(DateTime) 
+    indexed_at = Column(DateTime)

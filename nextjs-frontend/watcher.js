@@ -8,7 +8,9 @@ const openapiFile = process.env.OPENAPI_OUTPUT_FILE;
 
 // Check if the environment variable is defined
 if (!openapiFile) {
-  console.error("Error: OPENAPI_OUTPUT_FILE environment variable is not defined in .env.local");
+  console.error(
+    "Error: OPENAPI_OUTPUT_FILE environment variable is not defined in .env.local",
+  );
   process.exit(1);
 }
 

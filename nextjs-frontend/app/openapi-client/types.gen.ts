@@ -73,12 +73,14 @@ export type NewCardData = {
   title: string;
   description: string;
   task_type: TaskType;
-  status?: "todo";
+  status?: "todo" | "doing" | "done";
   /**
    * List of card_ids this card depends on.
    */
   dependencies?: Array<string>;
 };
+
+export type status = "todo" | "doing" | "done";
 
 export type OutboundCallRequest = {
   /**

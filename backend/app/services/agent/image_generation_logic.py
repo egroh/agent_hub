@@ -29,7 +29,9 @@ if not HF_TOKEN and os.getenv("DEMO_MODE", "false").lower() != "true":
 # Initialize the client to call the Hugging Face Inference API
 # We pass the token and the billing information for the hackathon.
 inference_client = InferenceClient(
-    model=MODEL_ID, token=HF_TOKEN, bill_to="agents-hack",
+    model=MODEL_ID,
+    token=HF_TOKEN,
+    bill_to="agents-hack",
 )
 
 
@@ -45,12 +47,14 @@ async def generate_image_for_task(
         logger.info("DEMO_MODE is enabled. Returning mock image.")
         # Simulate a short delay
         await asyncio.sleep(1.0)
-        
+
         # Return a simple 1x1 pixel transparent PNG or similar as base64
         # This is a 1x1 red pixel
         mock_image_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
-        
-        return ImageGenerationResponse(image_base64=mock_image_base64, model_id="demo-mock-model")
+
+        return ImageGenerationResponse(
+            image_base64=mock_image_base64, model_id="demo-mock-model"
+        )
 
     logger.info(f"Generating image for prompt: '{request.prompt[:70]}...'")
     start_time = time.time()
@@ -58,9 +62,7 @@ async def generate_image_for_task(
     try:
         # The client's text_to_image method is synchronous (blocking).
         # We run it in a separate thread to keep the server responsive.
-        image = await asyncio.to_thread(
-            inference_client.text_to_image, request.prompt
-        )
+        image = await asyncio.to_thread(inference_client.text_to_image, request.prompt)
 
         # Convert the returned PIL Image object to a Base64 string.
         buffered = io.BytesIO()

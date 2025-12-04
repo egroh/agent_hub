@@ -7,13 +7,12 @@ class Settings(BaseSettings):
     # OpenAPI docs
     OPENAPI_URL: str = "/openapi.json"
 
-
     # Frontend
     FRONTEND_URL: str = "http://localhost:3000"
 
     # CORS
     CORS_ORIGINS: Set[str]
-    
+
     ANTHROPIC_API_KEY: str
 
     model_config = SettingsConfigDict(

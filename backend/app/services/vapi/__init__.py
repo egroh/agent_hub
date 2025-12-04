@@ -1,3 +1,3 @@
 from .service import VapiService
 
-__all__ = ["VapiService"] 
+__all__ = ["VapiService"]

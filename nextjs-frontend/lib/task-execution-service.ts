@@ -22,7 +22,7 @@ export class TaskExecutionService {
 
   private notifyListeners() {
     this.listeners.forEach((listener) =>
-      listener(new Map(this.executingTasks))
+      listener(new Map(this.executingTasks)),
     );
   }
 
@@ -30,7 +30,7 @@ export class TaskExecutionService {
   startExecution(
     taskId: string,
     executionType: TaskExecution["executionType"],
-    agentId?: string
+    agentId?: string,
   ): string {
     const executionId = `exec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -104,7 +104,7 @@ export class TaskExecutionService {
           acc[task.executionType] = (acc[task.executionType] || 0) + 1;
           return acc;
         },
-        {} as Record<string, number>
+        {} as Record<string, number>,
       ),
       longestRunning: tasks.reduce(
         (longest, task) => {
@@ -114,7 +114,7 @@ export class TaskExecutionService {
             ? { taskId: task.taskId, duration }
             : longest;
         },
-        { taskId: "", duration: 0 }
+        { taskId: "", duration: 0 },
       ),
     };
   }

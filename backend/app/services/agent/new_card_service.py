@@ -76,15 +76,16 @@ def _get_system_prompt() -> str:
     ```
     """
 
+
 def _extract_json_from_response(text: str) -> str:
     """
     Finds and extracts a JSON object from a string, even if it's wrapped
     in markdown code fences.
     """
     # Find the first '{' which marks the beginning of the JSON
-    start_index = text.find('{')
+    start_index = text.find("{")
     # Find the last '}' which marks the end of the JSON
-    end_index = text.rfind('}')
+    end_index = text.rfind("}")
 
     if start_index == -1 or end_index == -1:
         raise ValueError("No valid JSON object found in the AI response.")
@@ -103,7 +104,7 @@ async def create_new_card_from_prompt(
 
     max_retries = 3
     base_delay = 2  # seconds
-    
+
     for attempt in range(max_retries):
         try:
             # Check for DEMO_MODE
@@ -111,7 +112,7 @@ async def create_new_card_from_prompt(
                 logger.info("DEMO_MODE is enabled. Returning mock response.")
                 # Simulate a short delay
                 await asyncio.sleep(1.5)
-                
+
                 # Mock response based on the prompt
                 mock_cards = {
                     "cards": [
@@ -121,8 +122,11 @@ async def create_new_card_from_prompt(
                             "description": "Analyze key competitors in the market.",
                             "task_type": "research_task",
                             "status": "todo",
-                            "parameters": {"topics": ["pricing", "features"], "scope": "Global"},
-                            "dependencies": []
+                            "parameters": {
+                                "topics": ["pricing", "features"],
+                                "scope": "Global",
+                            },
+                            "dependencies": [],
                         },
                         {
                             "card_id": "task-2",
@@ -131,7 +135,7 @@ async def create_new_card_from_prompt(
                             "task_type": "research_task",
                             "status": "todo",
                             "parameters": None,
-                            "dependencies": ["task-1"]
+                            "dependencies": ["task-1"],
                         },
                         {
                             "card_id": "task-3",
@@ -140,22 +144,22 @@ async def create_new_card_from_prompt(
                             "task_type": "image_generation_task",
                             "status": "todo",
                             "parameters": None,
-                            "dependencies": ["task-2"]
-                        }
+                            "dependencies": ["task-2"],
+                        },
                     ]
                 }
-                
+
                 # Return the mock response as if it came from the LLM
                 response_text = json.dumps(mock_cards)
                 cleaned_json_text = response_text
                 response_json = mock_cards
-                
+
                 # Validate each card and then validate the dependency graph
                 # Validate each card and then validate the dependency graph
                 card_list_json = mock_cards["cards"]
                 validated_cards = [NewCardData(**card) for card in card_list_json]
                 _validate_dependencies(validated_cards)
-                
+
                 execution_time = time.time() - start_time
                 metadata = {
                     "model_used": "demo-mock",
@@ -193,7 +197,7 @@ async def create_new_card_from_prompt(
             # Validate each card and then validate the dependency graph
             validated_cards = [NewCardData(**card) for card in card_list_json]
             _validate_dependencies(validated_cards)
-            
+
             # Success, break out of retry loop
             break
 
@@ -202,16 +206,25 @@ async def create_new_card_from_prompt(
             raise ValueError(f"AI model returned invalid data: {e}")
         except anthropic.APIError as e:
             error_msg = str(e).lower()
-            
+
             # Check if it's a rate limit or overload error
-            if ("overloaded" in error_msg or "rate limit" in error_msg or "429" in error_msg or "529" in error_msg) and attempt < max_retries - 1:
-                delay = base_delay * (2 ** attempt)  # Exponential backoff
-                logger.warning(f"Anthropic API overloaded/rate limited (attempt {attempt + 1}/{max_retries}). Retrying in {delay} seconds...")
+            if (
+                "overloaded" in error_msg
+                or "rate limit" in error_msg
+                or "429" in error_msg
+                or "529" in error_msg
+            ) and attempt < max_retries - 1:
+                delay = base_delay * (2**attempt)  # Exponential backoff
+                logger.warning(
+                    f"Anthropic API overloaded/rate limited (attempt {attempt + 1}/{max_retries}). Retrying in {delay} seconds..."
+                )
                 await asyncio.sleep(delay)
                 continue
             else:
                 logger.error(f"Anthropic API error: {e}")
-                raise RuntimeError(f"AI service is currently unavailable after {attempt + 1} attempts: {e}")
+                raise RuntimeError(
+                    f"AI service is currently unavailable after {attempt + 1} attempts: {e}"
+                )
 
     execution_time = time.time() - start_time
     metadata = {

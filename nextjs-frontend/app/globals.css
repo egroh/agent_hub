@@ -90,7 +90,8 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -99,9 +100,16 @@ body {
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  75% { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
 }
 
 .fade-in {
@@ -128,7 +136,11 @@ body {
 
 /* Column drop highlight */
 .drop-highlight {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1),
+    rgba(147, 51, 234, 0.1)
+  );
   border: 2px dashed rgba(59, 130, 246, 0.3);
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -154,7 +166,7 @@ body {
 }
 
 .drop-zone::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -2px;
   left: 0;
@@ -189,4 +201,4 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--foreground));
-} 
+}

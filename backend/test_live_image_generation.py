@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 
 # This is the "bad python hack" to load the .env file.
 # It finds and loads the .env file from the same directory or parent directories.
-load_dotenv()
+load_dotenv()  # noqa: E402
 
 # Now we can import our modules, which will have access to the HF_TOKEN.
-from app.services.agent.image_generation_logic import generate_image_for_task
-from app.services.github.schema import ImageGenerationRequest
+from app.services.agent.image_generation_logic import generate_image_for_task  # noqa: E402
+from app.services.github.schema import ImageGenerationRequest  # noqa: E402
 
 
 # Mark this test as 'live' so you can run it separately from fast unit tests.
@@ -36,7 +36,7 @@ async def test_live_generate_image_directly():
     # 2. Act: Call the actual function directly, no mocking!
     result = await generate_image_for_task(request)
 
-    print(f"--- Received response from image generation logic ---")
+    print("--- Received response from image generation logic ---")
 
     # 3. Assert: Check the response object for correctness.
     assert result is not None
@@ -50,9 +50,13 @@ async def test_live_generate_image_directly():
         # Attempt to decode the Base64 string. If it fails, it raises an error.
         image_bytes = base64.b64decode(result.image_base64)
         # Optional: Check that the decoded bytes look like a PNG file header.
-        assert image_bytes.startswith(b'\x89PNG'), "Decoded data does not look like a PNG file."
+        assert image_bytes.startswith(
+            b"\x89PNG"
+        ), "Decoded data does not look like a PNG file."
     except (TypeError, ValueError) as e:
-        pytest.fail(f"The returned 'image_base64' string is not valid Base64. Error: {e}")
+        pytest.fail(
+            f"The returned 'image_base64' string is not valid Base64. Error: {e}"
+        )
 
     # --- THIS IS THE NEW PART ---
     try:
@@ -67,9 +71,15 @@ async def test_live_generate_image_directly():
         with open(output_filename, "wb") as image_file:
             image_file.write(image_bytes)
 
-        print(f"\n--- ✅ Image successfully saved as '{output_filename}' in your project directory. ---")
+        print(
+            f"\n--- ✅ Image successfully saved as '{output_filename}' in your project directory. ---"
+        )
 
     except (TypeError, ValueError) as e:
-        pytest.fail(f"The returned 'image_base64' string is not valid Base64. Error: {e}")
+        pytest.fail(
+            f"The returned 'image_base64' string is not valid Base64. Error: {e}"
+        )
 
-    print("\n--- ✅ LIVE TEST PASSED: The agent successfully generated an image and returned valid Base64 data. ---")
+    print(
+        "\n--- ✅ LIVE TEST PASSED: The agent successfully generated an image and returned valid Base64 data. ---"
+    )

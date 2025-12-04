@@ -402,7 +402,11 @@
           },
           "status": {
             "type": "string",
-            "const": "todo",
+            "enum": [
+              "todo",
+              "doing",
+              "done"
+            ],
             "title": "Status",
             "default": "todo"
           },

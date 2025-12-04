@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Literal, Optional
 
 from pydantic import BaseModel, Field
 
+
 class ChatRequest(BaseModel):
     message: str
     context: Optional[Dict[str, Any]] = None
@@ -44,6 +45,7 @@ class TaskType(str, Enum):
     RESEARCH = "research_task"
     IMAGE_GENERATION = "image_generation_task"
 
+
 class NewCardData(BaseModel):
     """
     Defines the structure for a single task card, now with dependency tracking.
@@ -71,6 +73,7 @@ class NewCardAgentResponse(BaseModel):
     execution_time: float
     metadata: Dict[str, Any]
 
+
 class ImageGenerationRequest(BaseModel):
     """Request model for generating an image based on a text prompt."""
 
@@ -79,6 +82,7 @@ class ImageGenerationRequest(BaseModel):
         description="A descriptive prompt for the image to be generated.",
         min_length=10,
     )
+
 
 class ImageGenerationResponse(BaseModel):
     """

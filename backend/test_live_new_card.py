@@ -3,10 +3,10 @@ import pytest
 from dotenv import load_dotenv
 
 # Load .env file for the API key
-load_dotenv()
+load_dotenv()  # noqa: E402
 
-from app.services.agent.new_card_service import create_new_card_from_prompt
-from app.services.github.schema import AgentRequest, NewCardData, TaskType
+from app.services.agent.new_card_service import create_new_card_from_prompt  # noqa: E402
+from app.services.github.schema import AgentRequest, TaskType  # noqa: E402
 
 
 @pytest.mark.live
@@ -28,7 +28,9 @@ async def test_live_create_cards_with_dependencies():
 
     request = AgentRequest(prompt=dependency_prompt)
 
-    print(f"\n--- Sending LIVE request to Claude with prompt: '{dependency_prompt}' ---")
+    print(
+        f"\n--- Sending LIVE request to Claude with prompt: '{dependency_prompt}' ---"
+    )
 
     result = await create_new_card_from_prompt(request)
 
@@ -37,15 +39,13 @@ async def test_live_create_cards_with_dependencies():
 
     # --- Assertions for Dependency Logic ---
 
-    assert len(result.card_data) >= 2, "Should create at least a research and a phone card."
+    assert (
+        len(result.card_data) >= 2
+    ), "Should create at least a research and a phone card."
 
     # Find the research and phone cards
-    research_cards = [
-        c for c in result.card_data if c.task_type == TaskType.RESEARCH
-    ]
-    phone_cards = [
-        c for c in result.card_data if c.task_type == TaskType.PHONE
-    ]
+    research_cards = [c for c in result.card_data if c.task_type == TaskType.RESEARCH]
+    phone_cards = [c for c in result.card_data if c.task_type == TaskType.PHONE]
 
     assert len(research_cards) > 0, "At least one research card should exist."
     assert len(phone_cards) == 1, "Exactly one phone card should exist."
@@ -69,6 +69,8 @@ async def test_live_create_cards_with_dependencies():
             len(research_card.dependencies) == 0
         ), "Initial research cards should have no dependencies."
 
-    print("\n--- ✅ LIVE TEST PASSED: The agent successfully created a task chain with valid dependencies. ---")
+    print(
+        "\n--- ✅ LIVE TEST PASSED: The agent successfully created a task chain with valid dependencies. ---"
+    )
 
     print(result.card_data)

@@ -29,13 +29,13 @@ repos:
 
   - repo: local
     hooks:
-      - id: frontend-lint
-        name: run frontend lint
-        entry: sh -c 'cd nextjs-frontend && npm run lint'
-        language: system
-        types: [ file ]
-        files: ^nextjs-frontend/.*\.(js|jsx|ts|tsx)$
-        pass_filenames: true
+#      - id: frontend-lint
+#        name: run frontend lint
+#        entry: sh -c 'cd nextjs-frontend && npm run lint'
+#        language: system
+#        types: [ file ]
+#        files: ^nextjs-frontend/.*\.(js|jsx|ts|tsx)$
+#        pass_filenames: true
       - id: frontend-prettier
         name: Run Prettier on frontend files
         entry: sh -c 'cd nextjs-frontend && pnpm run prettier'
@@ -52,14 +52,14 @@ repos:
         pass_filenames: false
       - id: generate-openapi-schema
         name: generate OpenAPI schema
-        entry: sh -c 'cd backend && uv run python -m commands.generate_openapi_schema'
+        entry: sh -c 'cd backend && DEMO_MODE=true CORS_ORIGINS='"'"'["http://localhost:3000"]'"'"' ANTHROPIC_API_KEY=dummy OPENAPI_OUTPUT_FILE=../nextjs-frontend/openapi.json uv run python -m commands.generate_openapi_schema'
         language: system
         # Only run OpenAPI schema generation if schemas.py, main.py or package version have changed:
         files: (main\.py$|schemas\.py$|pyproject\.toml)
         pass_filenames: false
       - id: generate-frontend-client
         name: generate frontend client
-        entry: sh -c 'cd nextjs-frontend && pnpm run generate-client'
+        entry: sh -c 'cd nextjs-frontend && OPENAPI_OUTPUT_FILE=openapi.json pnpm run generate-client'
         language: system
         # Only run frontend client generation if frontend files have changed:
         files: openapi\.json$

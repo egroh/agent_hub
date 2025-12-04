@@ -3,8 +3,13 @@ import logging
 
 from app.services.agent import new_card_service, deep_search_service
 from app.services.agent.image_generation_logic import generate_image_for_task
-from app.services.github.schema import AgentRequest, AgentResponse, NewCardAgentResponse, ImageGenerationResponse, \
-    ImageGenerationRequest
+from app.services.github.schema import (
+    AgentRequest,
+    AgentResponse,
+    NewCardAgentResponse,
+    ImageGenerationResponse,
+    ImageGenerationRequest,
+)
 from app.services.chat.service import ChatService
 from app.services.agent.service import AgentService
 from app.services.vapi.service import VapiService
@@ -20,7 +25,6 @@ agent_service = AgentService()
 vapi_service = VapiService()
 
 
-
 @router.post("/agent", response_model=AgentResponse)
 async def trigger_agent(
     agent_request: AgentRequest,
@@ -32,7 +36,9 @@ async def trigger_agent(
         return await agent_service.process_prompt(agent_request)
     except Exception as e:
         logger.error(f"Error processing agent request: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Agent processing failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Agent processing failed: {str(e)}"
+        )
 
 
 @router.post("/outbound-call", response_model=OutboundCallResponse)
@@ -41,7 +47,7 @@ async def trigger_outbound_call(
 ):
     """
     Déclenche un appel sortant avec une Market Overview.
-    
+
     - **target_number**: Numéro de téléphone du destinataire (format E.164, ex: +33611421334)
     - **market_overview**: Texte de la Market Overview à résumer pendant l'appel
     - **name**: Nom de la personne à qui on passe l'appel
@@ -54,31 +60,33 @@ async def trigger_outbound_call(
         logger.error(f"Error triggering outbound call: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Outbound call failed: {str(e)}")
 
+
 @router.post("/new-card", response_model=NewCardAgentResponse)
 async def create_new_card_from_prompt(
-        agent_request: AgentRequest,
+    agent_request: AgentRequest,
 ):
-        """
-        Takes a natural language promptand uses a smolagent to create a
-        structured new task card.
-        """
-        if not agent_request.prompt or not agent_request.prompt.strip():
-            raise HTTPException(status_code=400, detail="Prompt cannot be emty.")
+    """
+    Takes a natural language promptand uses a smolagent to create a
+    structured new task card.
+    """
+    if not agent_request.prompt or not agent_request.prompt.strip():
+        raise HTTPException(status_code=400, detail="Prompt cannot be emty.")
 
-        try:
-            return await new_card_service.create_new_card_from_prompt(agent_request)
-        except ValueError as e:
-            # Catches user errors or bad output from the model (4xx error)
-            raise HTTPException(status_code=400, detail=str(e))
-        except RuntimeError as e:
-            # Catches backend service failures (5xx error)
-            raise HTTPException(status_code=503, detail=str(e))
-        except Exception as e:
-            # Catch-all for any other unexpected server error
-            logger.exception(f"Unhandled exception in /new-card endpoint: {e}")
-            raise HTTPException(
-                status_code=500, detail="An internal server error occurred."
-            )
+    try:
+        return await new_card_service.create_new_card_from_prompt(agent_request)
+    except ValueError as e:
+        # Catches user errors or bad output from the model (4xx error)
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        # Catches backend service failures (5xx error)
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        # Catch-all for any other unexpected server error
+        logger.exception(f"Unhandled exception in /new-card endpoint: {e}")
+        raise HTTPException(
+            status_code=500, detail="An internal server error occurred."
+        )
+
 
 @router.post("/deep-search", response_model=AgentResponse)
 async def perform_deep_search(
@@ -103,18 +111,18 @@ async def perform_deep_search(
             status_code=500, detail="An internal server error occurred."
         )
 
+
 @router.get("/board-init", response_model=NewCardAgentResponse)
 async def get_board_init():
     """
     Returns initial board state. Used for Demo Mode to populate the board.
     """
     import os
-    import time
     from app.services.github.schema import NewCardData
 
     if os.getenv("DEMO_MODE", "false").lower() == "true":
         logger.info("DEMO_MODE is enabled. Returning initial demo board state.")
-        
+
         mock_cards = [
             NewCardData(
                 card_id="demo-1",
@@ -122,7 +130,7 @@ async def get_board_init():
                 description="Research current pricing models of top 3 competitors in the AI agent space.",
                 task_type="research_task",
                 status="done",
-                dependencies=[]
+                dependencies=[],
             ),
             NewCardData(
                 card_id="demo-2",
@@ -130,7 +138,7 @@ async def get_board_init():
                 description="Create a pricing strategy document based on competitor analysis.",
                 task_type="research_task",
                 status="doing",
-                dependencies=["demo-1"]
+                dependencies=["demo-1"],
             ),
             NewCardData(
                 card_id="demo-3",
@@ -138,32 +146,30 @@ async def get_board_init():
                 description="Create a futuristic banner for the new pricing page. Style: Cyberpunk, Neon, Professional.",
                 task_type="image_generation_task",
                 status="todo",
-                dependencies=["demo-2"]
+                dependencies=["demo-2"],
             ),
-             NewCardData(
+            NewCardData(
                 card_id="demo-4",
                 title="Call Sales Lead",
                 description="Discuss the new pricing strategy with the sales lead.",
                 task_type="phone_task",
                 status="todo",
-                dependencies=["demo-2"]
-            )
+                dependencies=["demo-2"],
+            ),
         ]
 
         return NewCardAgentResponse(
             card_data=mock_cards,
             agent_id="demo-initializer",
             execution_time=0.1,
-            metadata={"mode": "demo"}
+            metadata={"mode": "demo"},
         )
-    
+
     # Return empty if not in demo mode
     return NewCardAgentResponse(
-        card_data=[],
-        agent_id="system",
-        execution_time=0.0,
-        metadata={}
+        card_data=[], agent_id="system", execution_time=0.0, metadata={}
     )
+
 
 @router.post("/generate-image", response_model=ImageGenerationResponse)
 async def generate_image_endpoint(

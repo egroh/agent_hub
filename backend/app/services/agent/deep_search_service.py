@@ -19,7 +19,7 @@ def _create_agent() -> CodeAgent:
     # Skip initialization if in demo mode
     if os.getenv("DEMO_MODE", "false").lower() == "true":
         logger.info("DEMO_MODE enabled: Skipping Deep Search Agent initialization.")
-        return None # type: ignore
+        return None  # type: ignore
 
     if "ANTHROPIC_API_KEY" not in os.environ:
         raise RuntimeError("ANTHROPIC_API_KEY environment variable not set.")
@@ -41,14 +41,16 @@ AGENT_ID = f"deep-search-func-{str(uuid.uuid4())[:8]}"
 async def run_deep_search(agent_request: AgentRequest) -> AgentResponse:
     """Runs the agent with a user's prompt."""
     start_time = time.time()
-    prompt = agent_request.prompt+"\n\nThe final answer should be less then 50 sentences."
+    prompt = (
+        agent_request.prompt + "\n\nThe final answer should be less then 50 sentences."
+    )
     logger.info(f"Agent running search for: '{prompt[:70]}...'")
 
     try:
         # Check for DEMO_MODE
         if os.getenv("DEMO_MODE", "false").lower() == "true":
             logger.info("DEMO_MODE is enabled. Returning mock deep search response.")
-            await asyncio.sleep(2.0) # Simulate search time
+            await asyncio.sleep(2.0)  # Simulate search time
             final_answer = (
                 f"**[DEMO MODE] Deep Search Result for: {agent_request.prompt}**\n\n"
                 "Based on the analysis of the request, here are the key findings:\n\n"
@@ -60,7 +62,9 @@ async def run_deep_search(agent_request: AgentRequest) -> AgentResponse:
         else:
             # Run the synchronous agent.run in a separate thread
             if deep_search_agent is None:
-                 raise RuntimeError("Deep Search Agent not initialized (check API keys).")
+                raise RuntimeError(
+                    "Deep Search Agent not initialized (check API keys)."
+                )
             final_answer = await asyncio.to_thread(deep_search_agent.run, prompt)
     except Exception as e:
         raise RuntimeError(f"Agent execution failed: {e}")

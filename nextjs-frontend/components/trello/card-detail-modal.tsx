@@ -1,19 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { TaskCard, User } from '@/lib/types';
+import { TaskCard, User } from "@/lib/types";
 import {
   Calendar,
   MessageCircle,
@@ -26,10 +26,14 @@ import {
   X,
   Plus,
   Sparkles,
-  Loader2, ImageIcon,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import {generateImageEndpoint, ImageGenerationResponse} from "@/app/openapi-client";
+  Loader2,
+  ImageIcon,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  generateImageEndpoint,
+  ImageGenerationResponse,
+} from "@/app/openapi-client";
 
 interface CardDetailModalProps {
   card: TaskCard | null;
@@ -56,7 +60,7 @@ export function CardDetailModal({
   useEffect(() => {
     if (card) {
       setEditedCard({ ...card });
-      setIsEditing(!card.title || card.title.trim() === '');
+      setIsEditing(!card.title || card.title.trim() === "");
     }
   }, [card]);
 
@@ -78,76 +82,76 @@ export function CardDetailModal({
     }
   };
 
-const handleGenerateImage = async () => {
-  if (!editedCard || !editedCard.title) return;
+  const handleGenerateImage = async () => {
+    if (!editedCard || !editedCard.title) return;
 
-  // 1. Set loading state immediately
-  const cardWithLoading = { ...editedCard, isGeneratingImage: true };
-  setEditedCard(cardWithLoading);
-  onSave(cardWithLoading);
+    // 1. Set loading state immediately
+    const cardWithLoading = { ...editedCard, isGeneratingImage: true };
+    setEditedCard(cardWithLoading);
+    onSave(cardWithLoading);
 
-  try {
-    // 2. Create a descriptive prompt
-    const prompt = `A digital art banner for a project task card titled: "${editedCard.title}". Description: ${editedCard.description || 'No description.'}. Style: vibrant, professional, slightly abstract.`;
+    try {
+      // 2. Create a descriptive prompt
+      const prompt = `A digital art banner for a project task card titled: "${editedCard.title}". Description: ${editedCard.description || "No description."}. Style: vibrant, professional, slightly abstract.`;
 
-    // 3. Call the API
-    const response = await generateImageEndpoint({
-      body: {
-        prompt: prompt,
-      },
-    });
+      // 3. Call the API
+      const response = await generateImageEndpoint({
+        body: {
+          prompt: prompt,
+        },
+      });
 
-    // --- THIS IS THE FIX ---
-    // 4. Add a "Type Guard" to safely handle the response.
-    if (!response.data) {
-      // If there's no data, it means an error occurred.
-      // The generated client might put error details in `response.error`.
-      console.error("Image generation failed:", response.error || "No data in response");
-      throw new Error("Failed to generate image: No data received.");
+      // --- THIS IS THE FIX ---
+      // 4. Add a "Type Guard" to safely handle the response.
+      if (!response.data) {
+        // If there's no data, it means an error occurred.
+        // The generated client might put error details in `response.error`.
+        console.error(
+          "Image generation failed:",
+          response.error || "No data in response",
+        );
+        throw new Error("Failed to generate image: No data received.");
+      }
+      // --- END OF FIX ---
+
+      // After the guard clause, TypeScript knows `response.data` is defined.
+      // The error TS18048 will now be gone.
+      const cardWithImage = {
+        ...cardWithLoading,
+        coverImage: response.data.image_base64,
+        isGeneratingImage: false,
+      };
+      setEditedCard(cardWithImage);
+      onSave(cardWithImage);
+    } catch (error) {
+      console.error("Image generation failed:", error);
+      const cardWithError = { ...editedCard, isGeneratingImage: false };
+      setEditedCard(cardWithError);
+      onSave(cardWithError);
     }
-    // --- END OF FIX ---
-
-    // After the guard clause, TypeScript knows `response.data` is defined.
-    // The error TS18048 will now be gone.
-    const cardWithImage = {
-      ...cardWithLoading,
-      coverImage: response.data.image_base64,
-      isGeneratingImage: false,
-    };
-    setEditedCard(cardWithImage);
-    onSave(cardWithImage);
-
-  } catch (error) {
-    console.error("Image generation failed:", error);
-    const cardWithError = { ...editedCard, isGeneratingImage: false };
-    setEditedCard(cardWithError);
-    onSave(cardWithError);
-  }
-};
-
-
+  };
 
   const toggleAssignee = (user: User) => {
-    const isAssigned = editedCard.assignees.some(a => a.id === user.id);
+    const isAssigned = editedCard.assignees.some((a) => a.id === user.id);
     if (isAssigned) {
       setEditedCard({
         ...editedCard,
-        assignees: editedCard.assignees.filter(a => a.id !== user.id)
+        assignees: editedCard.assignees.filter((a) => a.id !== user.id),
       });
     } else {
       setEditedCard({
         ...editedCard,
-        assignees: [...editedCard.assignees, user]
+        assignees: [...editedCard.assignees, user],
       });
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -157,7 +161,7 @@ const handleGenerateImage = async () => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Tag className="w-5 h-5" />
-            {isEditing ? 'Edit Card' : 'Card Details'}
+            {isEditing ? "Edit Card" : "Card Details"}
           </DialogTitle>
         </DialogHeader>
 
@@ -172,14 +176,18 @@ const handleGenerateImage = async () => {
               {isEditing ? (
                 <Input
                   value={editedCard.title}
-                  onChange={(e) => setEditedCard({ ...editedCard, title: e.target.value })}
+                  onChange={(e) =>
+                    setEditedCard({ ...editedCard, title: e.target.value })
+                  }
                   placeholder="Enter card title..."
                   className="text-lg font-medium"
                   autoFocus
                 />
               ) : (
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-medium text-gray-900">{editedCard.title}</h2>
+                  <h2 className="text-lg font-medium text-gray-900">
+                    {editedCard.title}
+                  </h2>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -198,17 +206,26 @@ const handleGenerateImage = async () => {
               </label>
               {isEditing ? (
                 <Textarea
-                  value={editedCard.description || ''}
-                  onChange={(e) => setEditedCard({ ...editedCard, description: e.target.value })}
+                  value={editedCard.description || ""}
+                  onChange={(e) =>
+                    setEditedCard({
+                      ...editedCard,
+                      description: e.target.value,
+                    })
+                  }
                   placeholder="Add a more detailed description..."
                   rows={4}
                 />
               ) : (
                 <div className="min-h-[100px] p-3 border rounded-md bg-gray-50">
                   {editedCard.description ? (
-                    <p className="text-gray-700 whitespace-pre-wrap">{editedCard.description}</p>
+                    <p className="text-gray-700 whitespace-pre-wrap">
+                      {editedCard.description}
+                    </p>
                   ) : (
-                    <p className="text-gray-400 italic">No description provided</p>
+                    <p className="text-gray-400 italic">
+                      No description provided
+                    </p>
                   )}
                 </div>
               )}
@@ -256,17 +273,30 @@ const handleGenerateImage = async () => {
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
                     <div className="flex items-center gap-2 mb-2">
                       <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
-                      <span className="text-sm font-medium text-blue-700">Processing with AI...</span>
+                      <span className="text-sm font-medium text-blue-700">
+                        Processing with AI...
+                      </span>
                     </div>
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div
+                        className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0ms" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "150ms" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "300ms" }}
+                      ></div>
                     </div>
                   </div>
                 ) : (
                   <div className="p-4 bg-purple-50 border border-purple-200 rounded-md">
-                    <p className="text-gray-700 whitespace-pre-wrap">{editedCard.aiResponse}</p>
+                    <p className="text-gray-700 whitespace-pre-wrap">
+                      {editedCard.aiResponse}
+                    </p>
                   </div>
                 )}
               </div>
@@ -284,7 +314,13 @@ const handleGenerateImage = async () => {
                     <Calendar className="w-4 h-4" />
                     Phone Calls
                   </span>
-                  <Badge className={phoneCallsEnabled ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                  <Badge
+                    className={
+                      phoneCallsEnabled
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-600"
+                    }
+                  >
                     {phoneCallsEnabled ? "Enabled" : "Disabled"}
                   </Badge>
                 </div>
@@ -293,23 +329,34 @@ const handleGenerateImage = async () => {
                     <MessageCircle className="w-4 h-4" />
                     Web Search
                   </span>
-                  <Badge className={webSearchEnabled ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-600"}>
+                  <Badge
+                    className={
+                      webSearchEnabled
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-gray-100 text-gray-600"
+                    }
+                  >
                     {webSearchEnabled ? "Enabled" : "Disabled"}
                   </Badge>
                 </div>
               </div>
             </div>
 
-
-
             {/* Action Buttons */}
             {isEditing && (
               <div className="flex gap-2 pt-4 border-t">
-                <Button onClick={handleSave} className="flex items-center gap-2">
+                <Button
+                  onClick={handleSave}
+                  className="flex items-center gap-2"
+                >
                   <Save className="w-4 h-4" />
                   Save Changes
                 </Button>
-                <Button variant="outline" onClick={handleCancel} className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleCancel}
+                  className="flex items-center gap-2"
+                >
                   <X className="w-4 h-4" />
                   Cancel
                 </Button>
@@ -328,12 +375,19 @@ const handleGenerateImage = async () => {
                 variant="outline"
                 className={cn(
                   "capitalize",
-                  editedCard.status === 'todo' && "border-gray-300 text-gray-700",
-                  editedCard.status === 'doing' && "border-blue-300 text-blue-700 bg-blue-50",
-                  editedCard.status === 'done' && "border-green-300 text-green-700 bg-green-50"
+                  editedCard.status === "todo" &&
+                    "border-gray-300 text-gray-700",
+                  editedCard.status === "doing" &&
+                    "border-blue-300 text-blue-700 bg-blue-50",
+                  editedCard.status === "done" &&
+                    "border-green-300 text-green-700 bg-green-50",
                 )}
               >
-                {editedCard.status === 'todo' ? 'To Do' : editedCard.status === 'doing' ? 'In Progress' : 'Done'}
+                {editedCard.status === "todo"
+                  ? "To Do"
+                  : editedCard.status === "doing"
+                    ? "In Progress"
+                    : "Done"}
               </Badge>
             </div>
 
@@ -368,13 +422,18 @@ const handleGenerateImage = async () => {
                     )}
                   </div>
                 ))}
-                
+
                 {isEditing && (
                   <div className="border-t pt-2">
-                    <p className="text-xs text-gray-500 mb-2">Available users:</p>
+                    <p className="text-xs text-gray-500 mb-2">
+                      Available users:
+                    </p>
                     <div className="space-y-1">
                       {availableUsers
-                        .filter(user => !editedCard.assignees.some(a => a.id === user.id))
+                        .filter(
+                          (user) =>
+                            !editedCard.assignees.some((a) => a.id === user.id),
+                        )
                         .map((user) => (
                           <Button
                             key={user.id}
@@ -405,27 +464,36 @@ const handleGenerateImage = async () => {
                   <Calendar className="w-4 h-4" />
                   Due Date
                 </label>
-                <p className="text-sm text-gray-600">{formatDate(editedCard.dueDate)}</p>
+                <p className="text-sm text-gray-600">
+                  {formatDate(editedCard.dueDate)}
+                </p>
               </div>
             )}
 
             {/* Activity Stats */}
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-gray-700">Activity</h3>
-              
+
               {editedCard.comments !== undefined && editedCard.comments > 0 && (
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <MessageCircle className="w-4 h-4" />
-                  <span>{editedCard.comments} comment{editedCard.comments !== 1 ? 's' : ''}</span>
+                  <span>
+                    {editedCard.comments} comment
+                    {editedCard.comments !== 1 ? "s" : ""}
+                  </span>
                 </div>
               )}
-              
-              {editedCard.attachments !== undefined && editedCard.attachments > 0 && (
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Paperclip className="w-4 h-4" />
-                  <span>{editedCard.attachments} attachment{editedCard.attachments !== 1 ? 's' : ''}</span>
-                </div>
-              )}
+
+              {editedCard.attachments !== undefined &&
+                editedCard.attachments > 0 && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Paperclip className="w-4 h-4" />
+                    <span>
+                      {editedCard.attachments} attachment
+                      {editedCard.attachments !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                )}
             </div>
           </div>
         </div>

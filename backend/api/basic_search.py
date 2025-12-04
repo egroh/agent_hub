@@ -7,6 +7,7 @@ dotenv.load_dotenv()
 
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 
+
 def create_deep_search_agent():
     """
     Creates and configures an agent for performing deep web searches.
@@ -47,9 +48,10 @@ def create_deep_search_agent():
         tools=[search_tool],
         model=model,
     )
-    
+
     print("Agent created successfully!")
     return agent
+
 
 if __name__ == "__main__":
     # Create the agent
@@ -59,11 +61,11 @@ if __name__ == "__main__":
     user_query = "What were the key technological advancements that led to the development of mRNA vaccines?"
 
     print(f"\nRunning agent with the following query:\n'{user_query}'\n")
-    
+
     # Run the agent with the user's query
     final_answer = deep_search_agent.run(user_query)
 
-    print("\n" + "="*30)
+    print("\n" + "=" * 30)
     print("      FINAL ANSWER")
-    print("="*30)
+    print("=" * 30)
     print(final_answer)

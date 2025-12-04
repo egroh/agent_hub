@@ -24,7 +24,11 @@ export interface TaskExecution {
   completedAt?: Date;
   error?: string;
   agentId?: string;
-  executionType: "ai_processing" | "web_search" | "phone_call" | "image_generation";
+  executionType:
+    | "ai_processing"
+    | "web_search"
+    | "phone_call"
+    | "image_generation";
 }
 
 export interface TaskCard {

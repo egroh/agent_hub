@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { TaskCard } from './task-card';
-import { Column } from '@/lib/types';
-import { Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { TaskCard } from "./task-card";
+import { Column } from "@/lib/types";
+import { Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BoardColumnProps {
   column: Column;
@@ -15,22 +15,29 @@ interface BoardColumnProps {
 export function BoardColumn({ column, className }: BoardColumnProps) {
   const getColumnHeaderClass = (columnId: string) => {
     switch (columnId) {
-      case 'todo':
-        return 'text-gray-700';
-      case 'doing':
-        return 'text-blue-700';
-      case 'done':
-        return 'text-green-700';
+      case "todo":
+        return "text-gray-700";
+      case "doing":
+        return "text-blue-700";
+      case "done":
+        return "text-green-700";
       default:
-        return 'text-gray-700';
+        return "text-gray-700";
     }
   };
 
   return (
-    <div className={cn("flex flex-col w-80 bg-gray-50 rounded-lg p-3", className)}>
+    <div
+      className={cn("flex flex-col w-80 bg-gray-50 rounded-lg p-3", className)}
+    >
       {/* Column Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className={cn("font-semibold text-sm", getColumnHeaderClass(column.id))}>
+        <h2
+          className={cn(
+            "font-semibold text-sm",
+            getColumnHeaderClass(column.id),
+          )}
+        >
           {column.title}
         </h2>
         <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-full">
@@ -56,4 +63,4 @@ export function BoardColumn({ column, className }: BoardColumnProps) {
       </Button>
     </div>
   );
-} 
+}
